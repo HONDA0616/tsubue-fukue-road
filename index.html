@@ -1,0 +1,754 @@
+<!DOCTYPE html><!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="粒江福江線道路改良工事の工事情報、交通規制予定、作業予定をお知らせします。" />
+  <title>粒江福江線道路改良工事 | 工事のお知らせ</title>
+
+  <style>
+    :root {
+      --main: #0b5cad;
+      --main-dark: #084985;
+      --accent: #f4a261;
+      --work: #4f8edc;
+      --bg: #f4f6f8;
+      --text: #263238;
+      --muted: #667085;
+      --line: #d0d7de;
+      --card: #ffffff;
+      --soft-blue: #eef5ff;
+      --soft-orange: #fff4e8;
+      --danger: #b00020;
+      --warning-bg: #fff8e6;
+      --warning-border: #f0d98a;
+      --ok-bg: #eefbf3;
+      --ok-border: #9bd6ad;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Yu Gothic", "Meiryo", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--main), var(--main-dark));
+      color: #fff;
+      padding: 34px 16px 30px;
+      text-align: center;
+    }
+
+    header .label {
+      display: inline-block;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: clamp(24px, 5vw, 34px);
+      line-height: 1.35;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 15px;
+      opacity: 0.95;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.35fr 0.85fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+      border: 1px solid rgba(208, 215, 222, 0.7);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 22px;
+      border-left: 6px solid var(--main);
+      padding-left: 10px;
+      line-height: 1.4;
+    }
+
+    .note {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 0 0 14px;
+    }
+
+    .info-table,
+    .contact-table,
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .info-table th,
+    .info-table td,
+    .contact-table th,
+    .contact-table td {
+      border: 1px solid var(--line);
+      padding: 12px 14px;
+      font-size: 15px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .info-table th,
+    .contact-table th {
+      width: 160px;
+      background: var(--soft-blue);
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .contact-box {
+      background: var(--soft-orange);
+      border: 1px solid #f2c28b;
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 14px;
+      color: #5f370e;
+      font-size: 14px;
+    }
+
+    .contact-box strong { font-size: 15px; }
+
+    .tel-link {
+      display: inline-block;
+      color: var(--main-dark);
+      font-weight: bold;
+      text-decoration: none;
+      font-size: 17px;
+    }
+
+    .tel-link:hover { text-decoration: underline; }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+    }
+
+    .schedule-table {
+      min-width: 780px;
+      overflow: hidden;
+    }
+
+    .schedule-table th,
+    .schedule-table td {
+      border: 1px solid var(--line);
+      padding: 11px 10px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .schedule-table th {
+      background: var(--soft-blue);
+      font-weight: bold;
+    }
+
+    .schedule-table td.item {
+      text-align: left;
+      font-weight: bold;
+      background: #fafafa;
+      white-space: nowrap;
+      min-width: 150px;
+    }
+
+    .active {
+      background: var(--work);
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .restriction {
+      background: var(--accent);
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .empty {
+      background: #fff;
+      color: #8a8f98;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-box {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .legend-box.work { background: var(--work); }
+    .legend-box.traffic { background: var(--accent); }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .status-card {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .status-card span {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .status-card strong {
+      font-size: 17px;
+      color: var(--main-dark);
+    }
+
+    .error,
+    .warning,
+    .success {
+      padding: 12px;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+
+    .error {
+      color: var(--danger);
+      background: #fff3f3;
+      border: 1px solid #f0b5b5;
+    }
+
+    .warning {
+      color: #5f370e;
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+    }
+
+    .success {
+      color: #195c2f;
+      background: var(--ok-bg);
+      border: 1px solid var(--ok-border);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 24px 16px 40px;
+    }
+
+    @media (max-width: 800px) {
+      .grid { grid-template-columns: 1fr; }
+      .status-row { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      header { padding: 28px 14px 24px; }
+      .container {
+        margin: 16px auto;
+        padding: 0 12px;
+      }
+      .card {
+        padding: 18px;
+        border-radius: 14px;
+      }
+      h2 { font-size: 18px; }
+      .info-table th,
+      .contact-table th { width: 112px; }
+      .info-table th,
+      .info-table td,
+      .contact-table th,
+      .contact-table td {
+        padding: 10px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="label">工事情報ページ</div>
+    <h1>粒江福江線道路改良工事</h1>
+    <p>交通規制予定・作業予定をお知らせします</p>
+  </header>
+
+  <main class="container">
+
+    <div class="grid">
+      <section class="card">
+        <h2>基本情報</h2>
+        <table class="info-table">
+          <tr>
+            <th>工事名</th>
+            <td>粒江福江線道路改良工事</td>
+          </tr>
+          <tr>
+            <th>工事期間</th>
+            <td>令和8年3月17日～令和8年10月30日</td>
+          </tr>
+          <tr>
+            <th>施工会社</th>
+            <td>Ys’コーポレーション株式会社</td>
+          </tr>
+        </table>
+
+        <div class="status-row">
+          <div class="status-card">
+            <span>交通規制</span>
+            <strong>片側交互通行</strong>
+          </div>
+          <div class="status-card">
+            <span>工程表示</span>
+            <strong>当月予定</strong>
+          </div>
+          <div class="status-card">
+            <span>更新方法</span>
+            <strong>スプレッドシート</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>問い合わせ先</h2>
+        <table class="contact-table">
+          <tr>
+            <th>施工会社</th>
+            <td>Ys’コーポレーション株式会社</td>
+          </tr>
+          <tr>
+            <th>電話番号</th>
+            <td><a class="tel-link" href="tel:0804860062">080-486-0062</a></td>
+          </tr>
+          <tr>
+            <th>担当者</th>
+            <td>本田</td>
+          </tr>
+        </table>
+        <div class="contact-box">
+          <strong>お願い</strong><br>
+          工事に関するお問い合わせは、上記施工会社までご連絡ください。<br>
+          緊急時は電話にてご連絡をお願いいたします。
+        </div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2 id="trafficTitle">交通規制工程表</h2>
+      <p class="note">※下記は当月の交通規制予定です。天候・現場状況等により変更となる場合があります。</p>
+      <div id="trafficMessage"></div>
+      <div class="table-wrap">
+        <table class="schedule-table" id="trafficTable">
+          <tr><td>読み込み中...</td></tr>
+        </table>
+      </div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-box traffic"></span>交通規制予定</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 id="workTitle">作業内容工程表</h2>
+      <p class="note">※下記は当月の作業予定です。天候・現場状況等により変更となる場合があります。</p>
+      <div id="workMessage"></div>
+      <div class="table-wrap">
+        <table class="schedule-table" id="workTable">
+          <tr><td>読み込み中...</td></tr>
+        </table>
+      </div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-box work"></span>作業予定</span>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    © Ys’コーポレーション株式会社
+  </footer>
+
+  <script>
+    /**
+     * Google Apps ScriptのウェブアプリURLに差し替えてください。
+     *
+     * 例：
+     * const GAS_URL = "https://script.google.com/macros/s/xxxxxxxxxxxxxxxx/exec";
+     *
+     * 未設定・取得失敗・JSON不正の場合でもページは止めず、サンプルデータを表示します。
+     */
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxqu1cjCrxpJp64dj0ybHeNUMwQ_splW1FUOeVFSrymyWx9_Ph7tEEXCQGe3p07Kh24Hg/exec";
+
+    const SAMPLE_DATA = {
+      traffic: [
+        { "表示月": "令和8年5月", "期間": "5/1～5/10", "規制内容": "片側交互通行", "状況": "予定" },
+        { "表示月": "令和8年5月", "期間": "5/11～5/17", "規制内容": "片側交互通行", "状況": "予定" },
+        { "表示月": "令和8年5月", "期間": "5/18～5/24", "規制内容": "片側交互通行", "状況": "予定" },
+        { "表示月": "令和8年5月", "期間": "5/25～5/31", "規制内容": "片側交互通行", "状況": "予定" }
+      ],
+      work: [
+        { "表示月": "令和8年5月", "作業内容": "準備工", "5/1～5/10": "予定", "5/11～5/17": "－", "5/18～5/24": "－", "5/25～5/31": "－" },
+        { "表示月": "令和8年5月", "作業内容": "土工", "5/1～5/10": "予定", "5/11～5/17": "予定", "5/18～5/24": "予定", "5/25～5/31": "－" },
+        { "表示月": "令和8年5月", "作業内容": "排水構造物工", "5/1～5/10": "－", "5/11～5/17": "予定", "5/18～5/24": "予定", "5/25～5/31": "予定" },
+        { "表示月": "令和8年5月", "作業内容": "道路改良工", "5/1～5/10": "－", "5/11～5/17": "－", "5/18～5/24": "予定", "5/25～5/31": "予定" }
+      ]
+    };
+
+    document.addEventListener("DOMContentLoaded", init);
+
+    async function init() {
+      runSelfTests();
+
+      if (!isValidGasUrl(GAS_URL)) {
+        renderWithFallback("Google Apps ScriptのURLが未設定のため、サンプルデータを表示しています。");
+        return;
+      }
+
+      const result = await getScheduleDataSafely(GAS_URL);
+
+      if (result.ok) {
+        clearMessages();
+        renderAll(result.data);
+        showSuccess("trafficMessage", "スプレッドシートの交通規制予定を表示しています。");
+        showSuccess("workMessage", "スプレッドシートの作業予定を表示しています。");
+        return;
+      }
+
+      renderWithFallback(result.message);
+    }
+
+    function renderWithFallback(message) {
+      showWarning("trafficMessage", `${message} 現在はサンプルデータを表示しています。`);
+      showWarning("workMessage", "スプレッドシート連携を有効にするには、Apps ScriptのウェブアプリURL、公開設定、JSON形式を確認してください。");
+      renderAll(SAMPLE_DATA);
+    }
+
+    function clearMessages() {
+      setMessage("trafficMessage", "");
+      setMessage("workMessage", "");
+    }
+
+    function isValidGasUrl(url) {
+      return typeof url === "string" &&
+        /^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec(?:\?.*)?$/.test(url.trim());
+    }
+
+    async function getScheduleDataSafely(url) {
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          cache: "no-store",
+          redirect: "follow"
+        });
+
+        if (!response.ok) {
+          return {
+            ok: false,
+            message: `データ取得に失敗しました。HTTPステータス: ${response.status}`
+          };
+        }
+
+        const text = await response.text();
+        const parsed = parseJsonSafely(text);
+
+        if (!parsed.ok) {
+          return {
+            ok: false,
+            message: "Apps Scriptの返答がJSON形式ではありません。ログイン画面やHTMLが返っている可能性があります。"
+          };
+        }
+
+        const validation = validateScheduleData(parsed.data);
+
+        if (!validation.ok) {
+          return {
+            ok: false,
+            message: validation.message
+          };
+        }
+
+        return {
+          ok: true,
+          data: parsed.data,
+          message: "OK"
+        };
+      } catch (error) {
+        return {
+          ok: false,
+          message: `データ取得に失敗しました。${getFriendlyErrorMessage(error)}`
+        };
+      }
+    }
+
+    function parseJsonSafely(text) {
+      try {
+        return {
+          ok: true,
+          data: JSON.parse(text)
+        };
+      } catch (_) {
+        return {
+          ok: false,
+          data: null
+        };
+      }
+    }
+
+    function validateScheduleData(data) {
+      if (!data || typeof data !== "object") {
+        return {
+          ok: false,
+          message: "データ形式が不正です。JSONの一番外側はオブジェクトにしてください。"
+        };
+      }
+
+      if (!Array.isArray(data.traffic)) {
+        return {
+          ok: false,
+          message: "データ形式が不正です。traffic が配列ではありません。"
+        };
+      }
+
+      if (!Array.isArray(data.work)) {
+        return {
+          ok: false,
+          message: "データ形式が不正です。work が配列ではありません。"
+        };
+      }
+
+      return { ok: true, message: "OK" };
+    }
+
+    function getFriendlyErrorMessage(error) {
+      const message = error && error.message ? error.message : String(error || "原因不明");
+
+      if (message.includes("Failed to fetch") || message.includes("NetworkError")) {
+        return "URL不正、CORS制限、Apps Scriptの公開設定、またはネットワークの問題が考えられます。";
+      }
+
+      return message;
+    }
+
+    function renderAll(data) {
+      renderTrafficTable(data.traffic);
+      renderWorkTable(data.work);
+    }
+
+    function setMessage(targetId, html) {
+      const target = document.getElementById(targetId);
+      if (!target) return;
+      target.innerHTML = html;
+    }
+
+    function showWarning(targetId, message) {
+      setMessage(targetId, `<div class="warning">${escapeHtml(message)}</div>`);
+    }
+
+    function showSuccess(targetId, message) {
+      setMessage(targetId, `<div class="success">${escapeHtml(message)}</div>`);
+    }
+
+    function renderTrafficTable(data) {
+      const table = document.getElementById("trafficTable");
+      if (!table) return;
+
+      if (!Array.isArray(data) || data.length === 0) {
+        table.innerHTML = `<tr><td class="empty">交通規制予定はありません。</td></tr>`;
+        return;
+      }
+
+      const month = data[0]["表示月"] || "";
+      document.getElementById("trafficTitle").textContent = month
+        ? `交通規制工程表（${month}）`
+        : "交通規制工程表";
+
+      const restrictionName = data[0]["規制内容"] || "片側交互通行";
+
+      let html = `
+        <thead>
+          <tr>
+            <th>規制内容</th>
+      `;
+
+      data.forEach(row => {
+        html += `<th>${escapeHtml(row["期間"] || "")}</th>`;
+      });
+
+      html += `
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="item">${escapeHtml(restrictionName)}</td>
+      `;
+
+      data.forEach(row => {
+        const status = normalizeStatus(row["状況"]);
+        const className = status === "予定" ? "restriction" : "empty";
+        html += `<td class="${className}">${escapeHtml(status)}</td>`;
+      });
+
+      html += `
+          </tr>
+        </tbody>
+      `;
+
+      table.innerHTML = html;
+    }
+
+    function renderWorkTable(data) {
+      const table = document.getElementById("workTable");
+      if (!table) return;
+
+      if (!Array.isArray(data) || data.length === 0) {
+        table.innerHTML = `<tr><td class="empty">作業予定はありません。</td></tr>`;
+        return;
+      }
+
+      const month = data[0]["表示月"] || "";
+      document.getElementById("workTitle").textContent = month
+        ? `作業内容工程表（${month}）`
+        : "作業内容工程表";
+
+      const headers = Object.keys(data[0]).filter(header =>
+        header !== "表示月" && header !== "作業内容"
+      );
+
+      if (headers.length === 0) {
+        table.innerHTML = `<tr><td class="empty">作業期間の列がありません。</td></tr>`;
+        return;
+      }
+
+      let html = `
+        <thead>
+          <tr>
+            <th>作業内容</th>
+      `;
+
+      headers.forEach(header => {
+        html += `<th>${escapeHtml(header)}</th>`;
+      });
+
+      html += `
+          </tr>
+        </thead>
+        <tbody>
+      `;
+
+      data.forEach(row => {
+        html += `
+          <tr>
+            <td class="item">${escapeHtml(row["作業内容"] || "")}</td>
+        `;
+
+        headers.forEach(header => {
+          const value = normalizeStatus(row[header]);
+          const className = value === "予定" ? "active" : "empty";
+          html += `<td class="${className}">${escapeHtml(value)}</td>`;
+        });
+
+        html += `</tr>`;
+      });
+
+      html += `</tbody>`;
+      table.innerHTML = html;
+    }
+
+    function normalizeStatus(value) {
+      if (value === undefined || value === null || String(value).trim() === "") {
+        return "－";
+      }
+      return String(value).trim();
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    /**
+     * 簡易テスト。
+     * ブラウザの開発者ツール Console で結果を確認できます。
+     * 公開ページの表示には影響しません。
+     */
+    function runSelfTests() {
+      const tests = [];
+      const add = (name, passed) => tests.push({ name, passed });
+
+      add("有効なGAS URLを判定できること", isValidGasUrl("https://script.google.com/macros/s/abc123/exec") === true);
+      add("クエリ付きGAS URLを判定できること", isValidGasUrl("https://script.google.com/macros/s/abc123/exec?cache=1") === true);
+      add("未設定URLを無効として判定できること", isValidGasUrl("GAS_URL_HERE") === false);
+      add("空文字は－に変換されること", normalizeStatus("") === "－");
+      add("前後の空白を取り除けること", normalizeStatus(" 予定 ") === "予定");
+      add("HTMLをエスケープできること", escapeHtml("<script>") === "&lt;script&gt;");
+      add("サンプルデータ形式が有効であること", validateScheduleData(SAMPLE_DATA).ok === true);
+      add("traffic欠落を不正として判定できること", validateScheduleData({ work: [] }).ok === false);
+      add("work欠落を不正として判定できること", validateScheduleData({ traffic: [] }).ok === false);
+      add("JSON文字列を安全にparseできること", parseJsonSafely('{"traffic":[],"work":[]}').ok === true);
+      add("不正JSONを安全に失敗扱いにできること", parseJsonSafely('<html></html>').ok === false);
+
+      const failed = tests.filter(test => !test.passed);
+
+      if (failed.length === 0) {
+        console.log(`工事情報ページ 簡易テスト: ${tests.length}件すべてOK`);
+      } else {
+        console.warn("工事情報ページ 簡易テスト: 失敗あり", failed);
+      }
+    }
+  </script>
+
+</body>
+</html>
