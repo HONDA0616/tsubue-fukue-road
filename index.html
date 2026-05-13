@@ -342,21 +342,6 @@
             <td>Ys’コーポレーション株式会社</td>
           </tr>
         </table>
-
-        <div class="status-row">
-          <div class="status-card">
-            <span>交通規制</span>
-            <strong>片側交互通行</strong>
-          </div>
-          <div class="status-card">
-            <span>工程表示</span>
-            <strong>当月予定</strong>
-          </div>
-          <div class="status-card">
-            <span>更新方法</span>
-            <strong>スプレッドシート</strong>
-          </div>
-        </div>
       </section>
 
       <section class="card">
@@ -386,7 +371,6 @@
     <section class="card">
       <h2 id="trafficTitle">交通規制工程表</h2>
       <p class="note">※下記は当月の交通規制予定です。天候・現場状況等により変更となる場合があります。</p>
-      <div id="trafficMessage"></div>
       <div class="table-wrap">
         <table class="schedule-table" id="trafficTable">
           <tr><td>読み込み中...</td></tr>
@@ -400,7 +384,6 @@
     <section class="card">
       <h2 id="workTitle">作業内容工程表</h2>
       <p class="note">※下記は当月の作業予定です。天候・現場状況等により変更となる場合があります。</p>
-      <div id="workMessage"></div>
       <div class="table-wrap">
         <table class="schedule-table" id="workTable">
           <tr><td>読み込み中...</td></tr>
@@ -461,24 +444,16 @@
 
         clearMessages();
         renderAll(result.data);
-        showSuccess("trafficMessage", "スプレッドシートの交通規制予定を表示しています。");
-        showSuccess("workMessage", "スプレッドシートの作業予定を表示しています。");
         return;
       }
 
       renderWithFallback(result.message);
     }
-
     function renderWithFallback(message) {
-      showWarning("trafficMessage", `${message} 現在はサンプルデータを表示しています。`);
-      showWarning("workMessage", "スプレッドシート連携を有効にするには、Apps Script側のJSONP対応コード、公開設定、URLを確認してください。");
+      console.warn(message);
       renderAll(SAMPLE_DATA);
     }
-
-    function clearMessages() {
-      setMessage("trafficMessage", "");
-      setMessage("workMessage", "");
-    }
+    function clearMessages() {}
 
     function isValidGasUrl(url) {
       return typeof url === "string" &&
