@@ -19,11 +19,6 @@
       --card: #ffffff;
       --soft-blue: #eef5ff;
       --soft-orange: #fff4e8;
-      --danger: #b00020;
-      --warning-bg: #fff8e6;
-      --warning-border: #f0d98a;
-      --ok-bg: #eefbf3;
-      --ok-border: #9bd6ad;
     }
 
     * { box-sizing: border-box; }
@@ -225,61 +220,6 @@
     .legend-box.work { background: var(--work); }
     .legend-box.traffic { background: var(--accent); }
 
-    .status-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .status-card {
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px;
-      text-align: center;
-    }
-
-    .status-card span {
-      display: block;
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    .status-card strong {
-      font-size: 17px;
-      color: var(--main-dark);
-    }
-
-    .error,
-    .warning,
-    .success {
-      padding: 12px;
-      border-radius: 8px;
-      text-align: left;
-      font-size: 14px;
-      margin-bottom: 14px;
-    }
-
-    .error {
-      color: var(--danger);
-      background: #fff3f3;
-      border: 1px solid #f0b5b5;
-    }
-
-    .warning {
-      color: #5f370e;
-      background: var(--warning-bg);
-      border: 1px solid var(--warning-border);
-    }
-
-    .success {
-      color: #195c2f;
-      background: var(--ok-bg);
-      border: 1px solid var(--ok-border);
-    }
-
     footer {
       text-align: center;
       color: var(--muted);
@@ -289,7 +229,6 @@
 
     @media (max-width: 800px) {
       .grid { grid-template-columns: 1fr; }
-      .status-row { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 640px) {
@@ -401,10 +340,6 @@
   </footer>
 
   <script>
-    /**
-     * Google Apps ScriptのウェブアプリURL。
-     * GitHub PagesからApps Scriptを読む場合、CORSで失敗することがあるためJSONP方式で読み込みます。
-     */
     const GAS_URL = "https://script.google.com/macros/s/AKfycbxQdpX_oAeVEIQkxkjnT1vBM893srGMMqq01D_hpyY9-L6DwYyhtN9MhVp9uMu0JQJQWw/exec";
 
     const SAMPLE_DATA = {
@@ -428,7 +363,7 @@
       runSelfTests();
 
       if (!isValidGasUrl(GAS_URL)) {
-        renderWithFallback("Google Apps ScriptのURLが未設定または不正のため、サンプルデータを表示しています。");
+        renderAll(SAMPLE_DATA);
         return;
       }
 
@@ -436,24 +371,14 @@
 
       if (result.ok) {
         const validation = validateScheduleData(result.data);
-
-        if (!validation.ok) {
-          renderWithFallback(validation.message);
+        if (validation.ok) {
+          renderAll(result.data);
           return;
         }
-
-        clearMessages();
-        renderAll(result.data);
-        return;
       }
 
-      renderWithFallback(result.message);
-    }
-    function renderWithFallback(message) {
-      console.warn(message);
       renderAll(SAMPLE_DATA);
     }
-    function clearMessages() {}
 
     function isValidGasUrl(url) {
       return typeof url === "string" &&
@@ -471,11 +396,7 @@
           if (finished) return;
           finished = true;
           cleanup();
-          resolve({
-            ok: false,
-            data: null,
-            message: "Apps Scriptからの応答がありません。デプロイ設定、アクセス権限、URLを確認してください。"
-          });
+          resolve({ ok: false, data: null });
         }, 10000);
 
         window[callbackName] = data => {
@@ -483,11 +404,7 @@
           finished = true;
           window.clearTimeout(timeoutId);
           cleanup();
-          resolve({
-            ok: true,
-            data,
-            message: "OK"
-          });
+          resolve({ ok: true, data });
         };
 
         script.onerror = () => {
@@ -495,11 +412,7 @@
           finished = true;
           window.clearTimeout(timeoutId);
           cleanup();
-          resolve({
-            ok: false,
-            data: null,
-            message: "Apps Scriptの読み込みに失敗しました。URLまたは公開設定を確認してください。"
-          });
+          resolve({ ok: false, data: null });
         };
 
         script.src = `${url}${separator}callback=${encodeURIComponent(callbackName)}&cache=${Date.now()}`;
@@ -520,47 +433,15 @@
     }
 
     function validateScheduleData(data) {
-      if (!data || typeof data !== "object") {
-        return {
-          ok: false,
-          message: "データ形式が不正です。JSONの一番外側はオブジェクトにしてください。"
-        };
-      }
-
-      if (!Array.isArray(data.traffic)) {
-        return {
-          ok: false,
-          message: "データ形式が不正です。traffic が配列ではありません。"
-        };
-      }
-
-      if (!Array.isArray(data.work)) {
-        return {
-          ok: false,
-          message: "データ形式が不正です。work が配列ではありません。"
-        };
-      }
-
-      return { ok: true, message: "OK" };
+      if (!data || typeof data !== "object") return { ok: false };
+      if (!Array.isArray(data.traffic)) return { ok: false };
+      if (!Array.isArray(data.work)) return { ok: false };
+      return { ok: true };
     }
 
     function renderAll(data) {
       renderTrafficTable(data.traffic);
       renderWorkTable(data.work);
-    }
-
-    function setMessage(targetId, html) {
-      const target = document.getElementById(targetId);
-      if (!target) return;
-      target.innerHTML = html;
-    }
-
-    function showWarning(targetId, message) {
-      setMessage(targetId, `<div class="warning">${escapeHtml(message)}</div>`);
-    }
-
-    function showSuccess(targetId, message) {
-      setMessage(targetId, `<div class="success">${escapeHtml(message)}</div>`);
     }
 
     function renderTrafficTable(data) {
@@ -573,41 +454,20 @@
       }
 
       const month = data[0]["表示月"] || "";
-      document.getElementById("trafficTitle").textContent = month
-        ? `交通規制工程表（${month}）`
-        : "交通規制工程表";
-
+      document.getElementById("trafficTitle").textContent = month ? `交通規制工程表（${month}）` : "交通規制工程表";
       const restrictionName = data[0]["規制内容"] || "片側交互通行";
 
-      let html = `
-        <thead>
-          <tr>
-            <th>規制内容</th>
-      `;
-
+      let html = `<thead><tr><th>規制内容</th>`;
       data.forEach(row => {
         html += `<th>${escapeHtml(row["期間"] || "")}</th>`;
       });
-
-      html += `
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="item">${escapeHtml(restrictionName)}</td>
-      `;
-
+      html += `</tr></thead><tbody><tr><td class="item">${escapeHtml(restrictionName)}</td>`;
       data.forEach(row => {
         const status = normalizeStatus(row["状況"]);
         const className = status === "予定" ? "restriction" : "empty";
         html += `<td class="${className}">${escapeHtml(status)}</td>`;
       });
-
-      html += `
-          </tr>
-        </tbody>
-      `;
-
+      html += `</tr></tbody>`;
       table.innerHTML = html;
     }
 
@@ -621,47 +481,27 @@
       }
 
       const month = data[0]["表示月"] || "";
-      document.getElementById("workTitle").textContent = month
-        ? `作業内容工程表（${month}）`
-        : "作業内容工程表";
-
-      const headers = Object.keys(data[0]).filter(header =>
-        header !== "表示月" && header !== "作業内容"
-      );
+      document.getElementById("workTitle").textContent = month ? `作業内容工程表（${month}）` : "作業内容工程表";
+      const headers = Object.keys(data[0]).filter(header => header !== "表示月" && header !== "作業内容");
 
       if (headers.length === 0) {
         table.innerHTML = `<tr><td class="empty">作業期間の列がありません。</td></tr>`;
         return;
       }
 
-      let html = `
-        <thead>
-          <tr>
-            <th>作業内容</th>
-      `;
-
+      let html = `<thead><tr><th>作業内容</th>`;
       headers.forEach(header => {
         html += `<th>${escapeHtml(header)}</th>`;
       });
-
-      html += `
-          </tr>
-        </thead>
-        <tbody>
-      `;
+      html += `</tr></thead><tbody>`;
 
       data.forEach(row => {
-        html += `
-          <tr>
-            <td class="item">${escapeHtml(row["作業内容"] || "")}</td>
-        `;
-
+        html += `<tr><td class="item">${escapeHtml(row["作業内容"] || "")}</td>`;
         headers.forEach(header => {
           const value = normalizeStatus(row[header]);
           const className = value === "予定" ? "active" : "empty";
           html += `<td class="${className}">${escapeHtml(value)}</td>`;
         });
-
         html += `</tr>`;
       });
 
@@ -670,9 +510,7 @@
     }
 
     function normalizeStatus(value) {
-      if (value === undefined || value === null || String(value).trim() === "") {
-        return "－";
-      }
+      if (value === undefined || value === null || String(value).trim() === "") return "－";
       return String(value).trim();
     }
 
@@ -685,11 +523,6 @@
         .replace(/'/g, "&#039;");
     }
 
-    /**
-     * 簡易テスト。
-     * ブラウザの開発者ツール Console で結果を確認できます。
-     * 公開ページの表示には影響しません。
-     */
     function runSelfTests() {
       const tests = [];
       const add = (name, passed) => tests.push({ name, passed });
@@ -706,7 +539,6 @@
       add("JSONP用script読み込み関数が存在すること", typeof getScheduleDataByJsonp === "function");
 
       const failed = tests.filter(test => !test.passed);
-
       if (failed.length === 0) {
         console.log(`工事情報ページ 簡易テスト: ${tests.length}件すべてOK`);
       } else {
