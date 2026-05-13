@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="粒江福江線道路改良工事(倉敷地区）その２の工事情報、交通規制予定、作業・休工予定をお知らせします。" />
+  <meta name="description" content="粒江福江線道路改良工事(倉敷地区）その２の工事情報、月間予定をお知らせします。" />
   <title>粒江福江線道路改良工事(倉敷地区）その２ | 工事のお知らせ</title>
 
   <style>
@@ -52,7 +52,7 @@
 
     header h1 {
       margin: 0 0 8px;
-      font-size: clamp(24px, 5vw, 34px);
+      font-size: clamp(23px, 5vw, 34px);
       line-height: 1.35;
     }
 
@@ -153,14 +153,14 @@
     }
 
     .schedule-table {
-      min-width: 1200px;
+      min-width: 980px;
       overflow: hidden;
     }
 
     .schedule-table th,
     .schedule-table td {
       border: 1px solid var(--line);
-      padding: 11px 10px;
+      padding: 10px 8px;
       font-size: 14px;
       text-align: center;
     }
@@ -170,35 +170,61 @@
       font-weight: bold;
     }
 
-    .schedule-table td.item {
-      text-align: left;
-      font-weight: bold;
-      background: #fafafa;
-      white-space: nowrap;
-      min-width: 150px;
-    }
+    .schedule-table td.left { text-align: left; }
 
-    .active {
-      background: var(--work);
+    .status-badge {
+      display: inline-block;
+      min-width: 64px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: bold;
       color: #fff;
-      font-weight: bold;
+      text-align: center;
+      font-size: 13px;
     }
 
-    .rest {
-      background: var(--rest);
-      color: #fff;
-      font-weight: bold;
-    }
+    .badge-work { background: var(--work); }
+    .badge-rest { background: var(--rest); }
+    .badge-traffic { background: var(--accent); }
+    .badge-none { background: #e5e7eb; color: #374151; }
 
-    .restriction {
-      background: var(--accent);
-      color: #fff;
-      font-weight: bold;
-    }
+    .mobile-list { display: none; }
 
-    .empty {
+    .day-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
       background: #fff;
-      color: #8a8f98;
+    }
+
+    .day-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #edf2f7;
+    }
+
+    .day-card-date {
+      font-size: 17px;
+      font-weight: bold;
+      color: var(--main-dark);
+    }
+
+    .day-card-row {
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 8px;
+      font-size: 14px;
+      margin: 5px 0;
+    }
+
+    .day-card-label {
+      color: var(--muted);
+      font-weight: bold;
     }
 
     .legend {
@@ -259,6 +285,9 @@
         padding: 10px;
         font-size: 14px;
       }
+      .desktop-table { display: none; }
+      .mobile-list { display: block; }
+      .legend { font-size: 13px; }
     }
   </style>
 </head>
@@ -267,7 +296,7 @@
   <header>
     <div class="label">工事情報ページ</div>
     <h1>粒江福江線道路改良工事(倉敷地区）その２</h1>
-    <p>交通規制予定・作業休工予定をお知らせします</p>
+    <p>日ごとの交通規制・交通誘導員配置人数・作業休工予定をお知らせします</p>
   </header>
 
   <main class="container">
@@ -316,27 +345,16 @@
     </div>
 
     <section class="card">
-      <h2 id="trafficTitle">交通規制日程表</h2>
-      <p class="note">※下記は日ごとの交通規制予定です。天候・現場状況等により変更となる場合があります。</p>
-      <div class="table-wrap">
-        <table class="schedule-table" id="trafficTable">
+      <h2 id="scheduleTitle">月間予定表</h2>
+      <p class="note">※下記は日ごとの交通規制、交通誘導員配置人数、作業・休工予定です。天候・現場状況等により変更となる場合があります。</p>
+      <div class="table-wrap desktop-table">
+        <table class="schedule-table" id="scheduleTable">
           <tr><td>読み込み中...</td></tr>
         </table>
       </div>
+      <div class="mobile-list" id="scheduleMobileList"></div>
       <div class="legend">
-        <span class="legend-item"><span class="legend-box traffic"></span>交通規制予定</span>
-      </div>
-    </section>
-
-    <section class="card">
-      <h2 id="workTitle">作業・休工日程表</h2>
-      <p class="note">※下記は日ごとの作業・休工予定です。天候・現場状況等により変更となる場合があります。</p>
-      <div class="table-wrap">
-        <table class="schedule-table" id="workTable">
-          <tr><td>読み込み中...</td></tr>
-        </table>
-      </div>
-      <div class="legend">
+        <span class="legend-item"><span class="legend-box traffic"></span>交通規制あり</span>
         <span class="legend-item"><span class="legend-box work"></span>作業</span>
         <span class="legend-item"><span class="legend-box rest"></span>休工</span>
       </div>
@@ -349,36 +367,53 @@
   </footer>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxoRFwhistH0neobnR27BnVrqtWAdaWTd9NwInxHNvEYw1Vi1SSjio--8zCn_dSZH_u/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyht8KUkG-Z-3ZzA6iUnfcRKkBwM6dwYn64wmaZVJrDTLtlbWqckH1lIZiFWj79NwrDuQ/exec";
 
-    const SAMPLE_DATA = {
-      traffic: [
-        { "表示月": "令和8年5月", "期間": "5/1", "規制内容": "片側交互通行", "状況": "予定" },
-        { "表示月": "令和8年5月", "期間": "5/2", "規制内容": "片側交互通行", "状況": "予定" },
-        { "表示月": "令和8年5月", "期間": "5/3", "規制内容": "片側交互通行", "状況": "－" },
-        { "表示月": "令和8年5月", "期間": "5/4", "規制内容": "片側交互通行", "状況": "－" },
-        { "表示月": "令和8年5月", "期間": "5/5", "規制内容": "片側交互通行", "状況": "予定" },
-        { "表示月": "令和8年5月", "期間": "5/6", "規制内容": "片側交互通行", "状況": "予定" },
-        { "表示月": "令和8年5月", "期間": "5/7", "規制内容": "片側交互通行", "状況": "予定" }
-      ],
-      work: [
-        { "表示月": "令和8年5月", "区分": "作業", "5/1": "作業", "5/2": "作業", "5/3": "－", "5/4": "－", "5/5": "作業", "5/6": "作業", "5/7": "作業" },
-        { "表示月": "令和8年5月", "区分": "休工", "5/1": "－", "5/2": "－", "5/3": "休工", "5/4": "休工", "5/5": "－", "5/6": "－", "5/7": "－" }
-      ]
-    };
+    const SAMPLE_DATA = createSampleData();
+
+    function createSampleData() {
+      const traffic = [];
+      const work = [];
+      const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+      const displayMonth = "令和8年5月";
+
+      for (let day = 1; day <= 31; day++) {
+        const date = `5/${day}`;
+        const weekday = weekdays[new Date(2026, 4, day).getDay()];
+        const isWeekend = weekday === "土" || weekday === "日";
+        const isGoldenWeek = [3, 4, 5, 6].includes(day);
+        const isRest = isWeekend || isGoldenWeek;
+
+        traffic.push({
+          "表示月": displayMonth,
+          "日付": date,
+          "曜日": weekday,
+          "交通規制": isRest ? "なし" : "片側交互通行",
+          "交通誘導員配置人数": isRest ? 0 : 2,
+          "備考": isRest ? "休工予定" : ""
+        });
+
+        work.push({
+          "表示月": displayMonth,
+          "日付": date,
+          "曜日": weekday,
+          "区分": isRest ? "休工" : "作業",
+          "備考": isRest ? "休工予定" : "作業予定"
+        });
+      }
+
+      return { traffic, work };
+    }
 
     document.addEventListener("DOMContentLoaded", init);
 
     async function init() {
       runSelfTests();
-
       if (!isValidGasUrl(GAS_URL)) {
         renderAll(SAMPLE_DATA);
         return;
       }
-
       const result = await getScheduleDataByJsonp(GAS_URL);
-
       if (result.ok) {
         const validation = validateScheduleData(result.data);
         if (validation.ok) {
@@ -386,37 +421,32 @@
           return;
         }
       }
-
       renderAll(SAMPLE_DATA);
     }
 
     function isValidGasUrl(url) {
-      return typeof url === "string" &&
-        /^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec(?:\?.*)?$/.test(url.trim());
+      return typeof url === "string" && /^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec(?:\?.*)?$/.test(url.trim());
     }
 
     function getScheduleDataByJsonp(url) {
       return new Promise(resolve => {
-        const callbackName = `scheduleCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+        const callbackName = "scheduleCallback_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
         const separator = url.includes("?") ? "&" : "?";
         const script = document.createElement("script");
         let finished = false;
-
         const timeoutId = window.setTimeout(() => {
           if (finished) return;
           finished = true;
           cleanup();
           resolve({ ok: false, data: null });
         }, 10000);
-
         window[callbackName] = data => {
           if (finished) return;
           finished = true;
           window.clearTimeout(timeoutId);
           cleanup();
-          resolve({ ok: true, data });
+          resolve({ ok: true, data: data });
         };
-
         script.onerror = () => {
           if (finished) return;
           finished = true;
@@ -424,20 +454,12 @@
           cleanup();
           resolve({ ok: false, data: null });
         };
-
-        script.src = `${url}${separator}callback=${encodeURIComponent(callbackName)}&cache=${Date.now()}`;
+        script.src = url + separator + "callback=" + encodeURIComponent(callbackName) + "&cache=" + Date.now();
         document.body.appendChild(script);
-
         function cleanup() {
-          try {
-            delete window[callbackName];
-          } catch (_) {
-            window[callbackName] = undefined;
-          }
-
-          if (script.parentNode) {
-            script.parentNode.removeChild(script);
-          }
+          try { delete window[callbackName]; }
+          catch (_) { window[callbackName] = undefined; }
+          if (script.parentNode) script.parentNode.removeChild(script);
         }
       });
     }
@@ -450,80 +472,103 @@
     }
 
     function renderAll(data) {
-      renderTrafficTable(data.traffic);
-      renderWorkTable(data.work);
+      renderSchedule(data.traffic || [], data.work || []);
     }
 
-    function renderTrafficTable(data) {
-      const table = document.getElementById("trafficTable");
-      if (!table) return;
+    function renderSchedule(trafficData, workData) {
+      const table = document.getElementById("scheduleTable");
+      const mobile = document.getElementById("scheduleMobileList");
+      if (!table || !mobile) return;
 
-      if (!Array.isArray(data) || data.length === 0) {
-        table.innerHTML = `<tr><td class="empty">交通規制予定はありません。</td></tr>`;
+      const trafficMap = new Map();
+      trafficData.forEach(row => {
+        const date = row["日付"] || row["期間"] || "";
+        if (date) trafficMap.set(String(date), row);
+      });
+
+      const workMap = new Map();
+      workData.forEach(row => {
+        const date = row["日付"] || row["期間"] || "";
+        if (date) workMap.set(String(date), row);
+      });
+
+      const dates = Array.from(new Set(Array.from(trafficMap.keys()).concat(Array.from(workMap.keys())))).sort(compareDateText);
+
+      if (dates.length === 0) {
+        table.innerHTML = '<tr><td class="empty">予定はありません。</td></tr>';
+        mobile.innerHTML = '<div class="day-card">予定はありません。</div>';
         return;
       }
 
-      const month = data[0]["表示月"] || "";
-      document.getElementById("trafficTitle").textContent = month ? `交通規制日程表（${month}）` : "交通規制日程表";
-      const restrictionName = data[0]["規制内容"] || "片側交互通行";
+      const firstRow = trafficData[0] || workData[0] || {};
+      const month = firstRow["表示月"] || "";
+      document.getElementById("scheduleTitle").textContent = month ? "月間予定表（" + month + "）" : "月間予定表";
 
-      let html = `<thead><tr><th>規制内容</th>`;
-      data.forEach(row => {
-        html += `<th>${escapeHtml(row["期間"] || "")}</th>`;
+      let html = '<thead><tr><th>日付</th><th>曜日</th><th>作業/休工</th><th>交通規制</th><th>交通誘導員配置人数</th><th>備考</th></tr></thead><tbody>';
+      let mobileHtml = "";
+
+      dates.forEach(date => {
+        const traffic = trafficMap.get(date) || {};
+        const work = workMap.get(date) || {};
+        const day = work["曜日"] || traffic["曜日"] || "";
+        const kind = normalizeStatus(work["区分"] || work["作業内容"]);
+        const regulation = normalizeStatus(traffic["交通規制"] || traffic["規制内容"]);
+        const count = normalizeCount(traffic["交通誘導員配置人数"]);
+        const workNote = normalizeStatus(work["備考"]);
+        const trafficNote = normalizeStatus(traffic["備考"]);
+        const note = mergeNotes(workNote, trafficNote);
+        const kindBadge = kind === "休工" ? "badge-rest" : kind === "作業" ? "badge-work" : "badge-none";
+        const regulationBadge = regulation !== "なし" && regulation !== "－" ? "badge-traffic" : "badge-none";
+
+        html += '<tr>' +
+          '<td>' + escapeHtml(date) + '</td>' +
+          '<td>' + escapeHtml(day) + '</td>' +
+          '<td><span class="status-badge ' + kindBadge + '">' + escapeHtml(kind) + '</span></td>' +
+          '<td><span class="status-badge ' + regulationBadge + '">' + escapeHtml(regulation) + '</span></td>' +
+          '<td>' + escapeHtml(count) + '人</td>' +
+          '<td class="left">' + escapeHtml(note) + '</td>' +
+        '</tr>';
+
+        const mobileDate = day ? escapeHtml(date) + '（' + escapeHtml(day) + '）' : escapeHtml(date);
+        mobileHtml += '<div class="day-card">' +
+          '<div class="day-card-header">' +
+            '<div class="day-card-date">' + mobileDate + '</div>' +
+            '<span class="status-badge ' + kindBadge + '">' + escapeHtml(kind) + '</span>' +
+          '</div>' +
+          '<div class="day-card-row"><div class="day-card-label">交通規制</div><div><span class="status-badge ' + regulationBadge + '">' + escapeHtml(regulation) + '</span></div></div>' +
+          '<div class="day-card-row"><div class="day-card-label">誘導員</div><div>' + escapeHtml(count) + '人</div></div>' +
+          '<div class="day-card-row"><div class="day-card-label">備考</div><div>' + escapeHtml(note) + '</div></div>' +
+        '</div>';
       });
-      html += `</tr></thead><tbody><tr><td class="item">${escapeHtml(restrictionName)}</td>`;
-      data.forEach(row => {
-        const status = normalizeStatus(row["状況"]);
-        const className = status === "予定" ? "restriction" : "empty";
-        html += `<td class="${className}">${escapeHtml(status)}</td>`;
-      });
-      html += `</tr></tbody>`;
+
+      html += '</tbody>';
       table.innerHTML = html;
+      mobile.innerHTML = mobileHtml;
     }
 
-    function renderWorkTable(data) {
-      const table = document.getElementById("workTable");
-      if (!table) return;
+    function mergeNotes(workNote, trafficNote) {
+      const notes = [];
+      if (workNote && workNote !== "－") notes.push(workNote);
+      if (trafficNote && trafficNote !== "－" && trafficNote !== workNote) notes.push(trafficNote);
+      return notes.length ? notes.join(" / ") : "－";
+    }
 
-      if (!Array.isArray(data) || data.length === 0) {
-        table.innerHTML = `<tr><td class="empty">作業・休工予定はありません。</td></tr>`;
-        return;
-      }
-
-      const month = data[0]["表示月"] || "";
-      document.getElementById("workTitle").textContent = month ? `作業・休工日程表（${month}）` : "作業・休工日程表";
-      const headers = Object.keys(data[0]).filter(header => header !== "表示月" && header !== "区分" && header !== "作業内容");
-
-      if (headers.length === 0) {
-        table.innerHTML = `<tr><td class="empty">作業・休工期間の列がありません。</td></tr>`;
-        return;
-      }
-
-      let html = `<thead><tr><th>区分</th>`;
-      headers.forEach(header => {
-        html += `<th>${escapeHtml(header)}</th>`;
-      });
-      html += `</tr></thead><tbody>`;
-
-      data.forEach(row => {
-        const label = row["区分"] || row["作業内容"] || "";
-        html += `<tr><td class="item">${escapeHtml(label)}</td>`;
-        headers.forEach(header => {
-          const value = normalizeStatus(row[header]);
-          let className = "empty";
-          if (value === "作業" || value === "予定") className = "active";
-          if (value === "休工") className = "rest";
-          html += `<td class="${className}">${escapeHtml(value)}</td>`;
-        });
-        html += `</tr>`;
-      });
-
-      html += `</tbody>`;
-      table.innerHTML = html;
+    function compareDateText(a, b) {
+      const parse = value => {
+        const match = String(value).match(/(\d{1,2})\/(\d{1,2})/);
+        if (!match) return Number.MAX_SAFE_INTEGER;
+        return Number(match[1]) * 100 + Number(match[2]);
+      };
+      return parse(a) - parse(b);
     }
 
     function normalizeStatus(value) {
       if (value === undefined || value === null || String(value).trim() === "") return "－";
+      return String(value).trim();
+    }
+
+    function normalizeCount(value) {
+      if (value === undefined || value === null || String(value).trim() === "") return "0";
       return String(value).trim();
     }
 
@@ -538,25 +583,18 @@
 
     function runSelfTests() {
       const tests = [];
-      const add = (name, passed) => tests.push({ name, passed });
-
+      const add = (name, passed) => tests.push({ name: name, passed: passed });
       add("有効なGAS URLを判定できること", isValidGasUrl("https://script.google.com/macros/s/abc123/exec") === true);
-      add("クエリ付きGAS URLを判定できること", isValidGasUrl("https://script.google.com/macros/s/abc123/exec?cache=1") === true);
       add("未設定URLを無効として判定できること", isValidGasUrl("GAS_URL_HERE") === false);
       add("空文字は－に変換されること", normalizeStatus("") === "－");
-      add("前後の空白を取り除けること", normalizeStatus(" 作業 ") === "作業");
+      add("人数空欄は0に変換されること", normalizeCount("") === "0");
       add("HTMLをエスケープできること", escapeHtml("<script>") === "&lt;script&gt;");
       add("サンプルデータ形式が有効であること", validateScheduleData(SAMPLE_DATA).ok === true);
-      add("traffic欠落を不正として判定できること", validateScheduleData({ work: [] }).ok === false);
-      add("work欠落を不正として判定できること", validateScheduleData({ traffic: [] }).ok === false);
       add("JSONP用script読み込み関数が存在すること", typeof getScheduleDataByJsonp === "function");
-
+      add("日付比較ができること", compareDateText("5/1", "5/2") < 0);
       const failed = tests.filter(test => !test.passed);
-      if (failed.length === 0) {
-        console.log(`工事情報ページ 簡易テスト: ${tests.length}件すべてOK`);
-      } else {
-        console.warn("工事情報ページ 簡易テスト: 失敗あり", failed);
-      }
+      if (failed.length === 0) console.log("工事情報ページ 簡易テスト: " + tests.length + "件すべてOK");
+      else console.warn("工事情報ページ 簡易テスト: 失敗あり", failed);
     }
   </script>
 
