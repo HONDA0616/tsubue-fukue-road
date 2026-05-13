@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="粒江福江線道路改良工事の工事情報、交通規制予定、作業予定をお知らせします。" />
-  <title>粒江福江線道路改良工事 | 工事のお知らせ</title>
+  <meta name="description" content="粒江福江線道路改良工事(倉敷地区）その２の工事情報、交通規制予定、作業・休工予定をお知らせします。" />
+  <title>粒江福江線道路改良工事(倉敷地区）その２ | 工事のお知らせ</title>
 
   <style>
     :root {
@@ -12,6 +12,7 @@
       --main-dark: #084985;
       --accent: #f4a261;
       --work: #4f8edc;
+      --rest: #9ca3af;
       --bg: #f4f6f8;
       --text: #263238;
       --muted: #667085;
@@ -152,7 +153,7 @@
     }
 
     .schedule-table {
-      min-width: 780px;
+      min-width: 1200px;
       overflow: hidden;
     }
 
@@ -179,6 +180,12 @@
 
     .active {
       background: var(--work);
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .rest {
+      background: var(--rest);
       color: #fff;
       font-weight: bold;
     }
@@ -218,6 +225,7 @@
     }
 
     .legend-box.work { background: var(--work); }
+    .legend-box.rest { background: var(--rest); }
     .legend-box.traffic { background: var(--accent); }
 
     footer {
@@ -258,8 +266,8 @@
 
   <header>
     <div class="label">工事情報ページ</div>
-    <h1>粒江福江線道路改良工事</h1>
-    <p>交通規制予定・作業予定をお知らせします</p>
+    <h1>粒江福江線道路改良工事(倉敷地区）その２</h1>
+    <p>交通規制予定・作業休工予定をお知らせします</p>
   </header>
 
   <main class="container">
@@ -270,7 +278,7 @@
         <table class="info-table">
           <tr>
             <th>工事名</th>
-            <td>粒江福江線道路改良工事</td>
+            <td>粒江福江線道路改良工事(倉敷地区）その２</td>
           </tr>
           <tr>
             <th>工事期間</th>
@@ -308,8 +316,8 @@
     </div>
 
     <section class="card">
-      <h2 id="trafficTitle">交通規制工程表</h2>
-      <p class="note">※下記は当月の交通規制予定です。天候・現場状況等により変更となる場合があります。</p>
+      <h2 id="trafficTitle">交通規制日程表</h2>
+      <p class="note">※下記は日ごとの交通規制予定です。天候・現場状況等により変更となる場合があります。</p>
       <div class="table-wrap">
         <table class="schedule-table" id="trafficTable">
           <tr><td>読み込み中...</td></tr>
@@ -321,15 +329,16 @@
     </section>
 
     <section class="card">
-      <h2 id="workTitle">作業内容工程表</h2>
-      <p class="note">※下記は当月の作業予定です。天候・現場状況等により変更となる場合があります。</p>
+      <h2 id="workTitle">作業・休工日程表</h2>
+      <p class="note">※下記は日ごとの作業・休工予定です。天候・現場状況等により変更となる場合があります。</p>
       <div class="table-wrap">
         <table class="schedule-table" id="workTable">
           <tr><td>読み込み中...</td></tr>
         </table>
       </div>
       <div class="legend">
-        <span class="legend-item"><span class="legend-box work"></span>作業予定</span>
+        <span class="legend-item"><span class="legend-box work"></span>作業</span>
+        <span class="legend-item"><span class="legend-box rest"></span>休工</span>
       </div>
     </section>
 
@@ -340,20 +349,21 @@
   </footer>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxQdpX_oAeVEIQkxkjnT1vBM893srGMMqq01D_hpyY9-L6DwYyhtN9MhVp9uMu0JQJQWw/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxoRFwhistH0neobnR27BnVrqtWAdaWTd9NwInxHNvEYw1Vi1SSjio--8zCn_dSZH_u/exec";
 
     const SAMPLE_DATA = {
       traffic: [
-        { "表示月": "令和8年5月", "期間": "5/1～5/10", "規制内容": "片側交互通行", "状況": "予定" },
-        { "表示月": "令和8年5月", "期間": "5/11～5/17", "規制内容": "片側交互通行", "状況": "予定" },
-        { "表示月": "令和8年5月", "期間": "5/18～5/24", "規制内容": "片側交互通行", "状況": "予定" },
-        { "表示月": "令和8年5月", "期間": "5/25～5/31", "規制内容": "片側交互通行", "状況": "予定" }
+        { "表示月": "令和8年5月", "期間": "5/1", "規制内容": "片側交互通行", "状況": "予定" },
+        { "表示月": "令和8年5月", "期間": "5/2", "規制内容": "片側交互通行", "状況": "予定" },
+        { "表示月": "令和8年5月", "期間": "5/3", "規制内容": "片側交互通行", "状況": "－" },
+        { "表示月": "令和8年5月", "期間": "5/4", "規制内容": "片側交互通行", "状況": "－" },
+        { "表示月": "令和8年5月", "期間": "5/5", "規制内容": "片側交互通行", "状況": "予定" },
+        { "表示月": "令和8年5月", "期間": "5/6", "規制内容": "片側交互通行", "状況": "予定" },
+        { "表示月": "令和8年5月", "期間": "5/7", "規制内容": "片側交互通行", "状況": "予定" }
       ],
       work: [
-        { "表示月": "令和8年5月", "作業内容": "準備工", "5/1～5/10": "予定", "5/11～5/17": "－", "5/18～5/24": "－", "5/25～5/31": "－" },
-        { "表示月": "令和8年5月", "作業内容": "土工", "5/1～5/10": "予定", "5/11～5/17": "予定", "5/18～5/24": "予定", "5/25～5/31": "－" },
-        { "表示月": "令和8年5月", "作業内容": "排水構造物工", "5/1～5/10": "－", "5/11～5/17": "予定", "5/18～5/24": "予定", "5/25～5/31": "予定" },
-        { "表示月": "令和8年5月", "作業内容": "道路改良工", "5/1～5/10": "－", "5/11～5/17": "－", "5/18～5/24": "予定", "5/25～5/31": "予定" }
+        { "表示月": "令和8年5月", "区分": "作業", "5/1": "作業", "5/2": "作業", "5/3": "－", "5/4": "－", "5/5": "作業", "5/6": "作業", "5/7": "作業" },
+        { "表示月": "令和8年5月", "区分": "休工", "5/1": "－", "5/2": "－", "5/3": "休工", "5/4": "休工", "5/5": "－", "5/6": "－", "5/7": "－" }
       ]
     };
 
@@ -454,7 +464,7 @@
       }
 
       const month = data[0]["表示月"] || "";
-      document.getElementById("trafficTitle").textContent = month ? `交通規制工程表（${month}）` : "交通規制工程表";
+      document.getElementById("trafficTitle").textContent = month ? `交通規制日程表（${month}）` : "交通規制日程表";
       const restrictionName = data[0]["規制内容"] || "片側交互通行";
 
       let html = `<thead><tr><th>規制内容</th>`;
@@ -476,30 +486,33 @@
       if (!table) return;
 
       if (!Array.isArray(data) || data.length === 0) {
-        table.innerHTML = `<tr><td class="empty">作業予定はありません。</td></tr>`;
+        table.innerHTML = `<tr><td class="empty">作業・休工予定はありません。</td></tr>`;
         return;
       }
 
       const month = data[0]["表示月"] || "";
-      document.getElementById("workTitle").textContent = month ? `作業内容工程表（${month}）` : "作業内容工程表";
-      const headers = Object.keys(data[0]).filter(header => header !== "表示月" && header !== "作業内容");
+      document.getElementById("workTitle").textContent = month ? `作業・休工日程表（${month}）` : "作業・休工日程表";
+      const headers = Object.keys(data[0]).filter(header => header !== "表示月" && header !== "区分" && header !== "作業内容");
 
       if (headers.length === 0) {
-        table.innerHTML = `<tr><td class="empty">作業期間の列がありません。</td></tr>`;
+        table.innerHTML = `<tr><td class="empty">作業・休工期間の列がありません。</td></tr>`;
         return;
       }
 
-      let html = `<thead><tr><th>作業内容</th>`;
+      let html = `<thead><tr><th>区分</th>`;
       headers.forEach(header => {
         html += `<th>${escapeHtml(header)}</th>`;
       });
       html += `</tr></thead><tbody>`;
 
       data.forEach(row => {
-        html += `<tr><td class="item">${escapeHtml(row["作業内容"] || "")}</td>`;
+        const label = row["区分"] || row["作業内容"] || "";
+        html += `<tr><td class="item">${escapeHtml(label)}</td>`;
         headers.forEach(header => {
           const value = normalizeStatus(row[header]);
-          const className = value === "予定" ? "active" : "empty";
+          let className = "empty";
+          if (value === "作業" || value === "予定") className = "active";
+          if (value === "休工") className = "rest";
           html += `<td class="${className}">${escapeHtml(value)}</td>`;
         });
         html += `</tr>`;
@@ -531,7 +544,7 @@
       add("クエリ付きGAS URLを判定できること", isValidGasUrl("https://script.google.com/macros/s/abc123/exec?cache=1") === true);
       add("未設定URLを無効として判定できること", isValidGasUrl("GAS_URL_HERE") === false);
       add("空文字は－に変換されること", normalizeStatus("") === "－");
-      add("前後の空白を取り除けること", normalizeStatus(" 予定 ") === "予定");
+      add("前後の空白を取り除けること", normalizeStatus(" 作業 ") === "作業");
       add("HTMLをエスケープできること", escapeHtml("<script>") === "&lt;script&gt;");
       add("サンプルデータ形式が有効であること", validateScheduleData(SAMPLE_DATA).ok === true);
       add("traffic欠落を不正として判定できること", validateScheduleData({ work: [] }).ok === false);
