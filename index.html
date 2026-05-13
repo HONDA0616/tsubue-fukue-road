@@ -419,14 +419,10 @@
 
   <script>
     /**
-     * Google Apps ScriptのウェブアプリURLに差し替えてください。
-     *
-     * 例：
-     * const GAS_URL = "https://script.google.com/macros/s/xxxxxxxxxxxxxxxx/exec";
-     *
-     * 未設定・取得失敗・JSON不正の場合でもページは止めず、サンプルデータを表示します。
+     * Google Apps ScriptのウェブアプリURL。
+     * GitHub PagesからApps Scriptを読む場合、CORSで失敗することがあるためJSONP方式で読み込みます。
      */
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxqu1cjCrxpJp64dj0ybHeNUMwQ_splW1FUOeVFSrymyWx9_Ph7tEEXCQGe3p07Kh24Hg/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxQdpX_oAeVEIQkxkjnT1vBM893srGMMqq01D_hpyY9-L6DwYyhtN9MhVp9uMu0JQJQWw/exec";
 
     const SAMPLE_DATA = {
       traffic: [
@@ -449,13 +445,20 @@
       runSelfTests();
 
       if (!isValidGasUrl(GAS_URL)) {
-        renderWithFallback("Google Apps ScriptのURLが未設定のため、サンプルデータを表示しています。");
+        renderWithFallback("Google Apps ScriptのURLが未設定または不正のため、サンプルデータを表示しています。");
         return;
       }
 
-      const result = await getScheduleDataSafely(GAS_URL);
+      const result = await getScheduleDataByJsonp(GAS_URL);
 
       if (result.ok) {
+        const validation = validateScheduleData(result.data);
+
+        if (!validation.ok) {
+          renderWithFallback(validation.message);
+          return;
+        }
+
         clearMessages();
         renderAll(result.data);
         showSuccess("trafficMessage", "スプレッドシートの交通規制予定を表示しています。");
@@ -468,7 +471,7 @@
 
     function renderWithFallback(message) {
       showWarning("trafficMessage", `${message} 現在はサンプルデータを表示しています。`);
-      showWarning("workMessage", "スプレッドシート連携を有効にするには、Apps ScriptのウェブアプリURL、公開設定、JSON形式を確認してください。");
+      showWarning("workMessage", "スプレッドシート連携を有効にするには、Apps Script側のJSONP対応コード、公開設定、URLを確認してください。");
       renderAll(SAMPLE_DATA);
     }
 
@@ -482,65 +485,63 @@
         /^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec(?:\?.*)?$/.test(url.trim());
     }
 
-    async function getScheduleDataSafely(url) {
-      try {
-        const response = await fetch(url, {
-          method: "GET",
-          cache: "no-store",
-          redirect: "follow"
-        });
+    function getScheduleDataByJsonp(url) {
+      return new Promise(resolve => {
+        const callbackName = `scheduleCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+        const separator = url.includes("?") ? "&" : "?";
+        const script = document.createElement("script");
+        let finished = false;
 
-        if (!response.ok) {
-          return {
+        const timeoutId = window.setTimeout(() => {
+          if (finished) return;
+          finished = true;
+          cleanup();
+          resolve({
             ok: false,
-            message: `データ取得に失敗しました。HTTPステータス: ${response.status}`
-          };
-        }
+            data: null,
+            message: "Apps Scriptからの応答がありません。デプロイ設定、アクセス権限、URLを確認してください。"
+          });
+        }, 10000);
 
-        const text = await response.text();
-        const parsed = parseJsonSafely(text);
+        window[callbackName] = data => {
+          if (finished) return;
+          finished = true;
+          window.clearTimeout(timeoutId);
+          cleanup();
+          resolve({
+            ok: true,
+            data,
+            message: "OK"
+          });
+        };
 
-        if (!parsed.ok) {
-          return {
+        script.onerror = () => {
+          if (finished) return;
+          finished = true;
+          window.clearTimeout(timeoutId);
+          cleanup();
+          resolve({
             ok: false,
-            message: "Apps Scriptの返答がJSON形式ではありません。ログイン画面やHTMLが返っている可能性があります。"
-          };
+            data: null,
+            message: "Apps Scriptの読み込みに失敗しました。URLまたは公開設定を確認してください。"
+          });
+        };
+
+        script.src = `${url}${separator}callback=${encodeURIComponent(callbackName)}&cache=${Date.now()}`;
+        document.body.appendChild(script);
+
+        function cleanup() {
+          try {
+            delete window[callbackName];
+          } catch (_) {
+            window[callbackName] = undefined;
+          }
+
+          if (script.parentNode) {
+            script.parentNode.removeChild(script);
+          }
         }
-
-        const validation = validateScheduleData(parsed.data);
-
-        if (!validation.ok) {
-          return {
-            ok: false,
-            message: validation.message
-          };
-        }
-
-        return {
-          ok: true,
-          data: parsed.data,
-          message: "OK"
-        };
-      } catch (error) {
-        return {
-          ok: false,
-          message: `データ取得に失敗しました。${getFriendlyErrorMessage(error)}`
-        };
-      }
-    }
-
-    function parseJsonSafely(text) {
-      try {
-        return {
-          ok: true,
-          data: JSON.parse(text)
-        };
-      } catch (_) {
-        return {
-          ok: false,
-          data: null
-        };
-      }
+      });
     }
 
     function validateScheduleData(data) {
@@ -566,16 +567,6 @@
       }
 
       return { ok: true, message: "OK" };
-    }
-
-    function getFriendlyErrorMessage(error) {
-      const message = error && error.message ? error.message : String(error || "原因不明");
-
-      if (message.includes("Failed to fetch") || message.includes("NetworkError")) {
-        return "URL不正、CORS制限、Apps Scriptの公開設定、またはネットワークの問題が考えられます。";
-      }
-
-      return message;
     }
 
     function renderAll(data) {
@@ -737,8 +728,7 @@
       add("サンプルデータ形式が有効であること", validateScheduleData(SAMPLE_DATA).ok === true);
       add("traffic欠落を不正として判定できること", validateScheduleData({ work: [] }).ok === false);
       add("work欠落を不正として判定できること", validateScheduleData({ traffic: [] }).ok === false);
-      add("JSON文字列を安全にparseできること", parseJsonSafely('{"traffic":[],"work":[]}').ok === true);
-      add("不正JSONを安全に失敗扱いにできること", parseJsonSafely('<html></html>').ok === false);
+      add("JSONP用script読み込み関数が存在すること", typeof getScheduleDataByJsonp === "function");
 
       const failed = tests.filter(test => !test.passed);
 
